@@ -1,0 +1,54 @@
+---
+title: "Turning Tables into {sf} Objects"
+output:
+  xaringan::moon_reader:
+    css: ["style.css", "default"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r child = "setup.Rmd"}
+```
+
+```{r, include=FALSE, eval=TRUE}
+library("sf")
+library("tidyverse")
+library("rnaturalearthdata")
+library("mapview")
+library("patchwork")
+library("leaflet")
+library("leaflet.extras")
+library("readxl")
+library("janitor")
+library("stars")
+```
+
+class: center, middle, dk-section-title
+background-image:url("images/tables-background-image.jpg")
+background-size: 100%
+
+# Turning Tables into {sf} Objects
+
+???
+
+In this pretty short video we're going to go through the entire workflow for extracing coordinates from an Excel spreadsheet and converting them into a {sf} object which we can then visualise with {mapview}.
+
+---
+
+# Worked Example
+
+Please navigate to the "airport-locations" project in the worked-exercises folder.
+
+```{yaml}
+└── worked-exercises
+    └── airport-locations
+        ├── airport-locations.Rproj
+        └── data
+```
+

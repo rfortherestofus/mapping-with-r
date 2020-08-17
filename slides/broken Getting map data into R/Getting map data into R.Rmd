@@ -1,0 +1,34 @@
+---
+title: "Getting map data into R"
+output:
+  xaringan::moon_reader:
+    css: ["style.css", "default"]
+    lib_dir: libs
+    df_print: paged
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+---
+
+```{r child = "setup.Rmd"}
+```
+
+## R for the Rest of Us Slides
+
+---
+
+class: inverse, my-turn
+
+### My turn
+
+I'll do a thing
+
+---
+
+class: inverse
+
+### Your turn
+
+You do a thing

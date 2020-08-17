@@ -1,0 +1,244 @@
+---
+title: "Course Design"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library("mapview")
+library("sf")
+library("tidycensus")
+library("tidyverse")
+library("tmaptools")
+library("tmap")
+library("rnaturalearthdata")
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# USefuk things
+
+https://geocompr.robinlovelace.net/
+
+
+# Welcome!
+
+# Getting map data into R
+
+## Making maps is complex
+- It's a complicated task collapsing the surface of our map to a flat surface
+
+- Sociopolitical boundaries and names are senstive
+
+- There are many different things we'd want to visualise
+
+- We need different approaches for different types of data, we use {sf} for most data
+
+* Show that there are projections
+
+* Show that there are base maps
+
+* Show that the shortest distance between points is a great circle
+    
+## mapview for quick maps
+- To understand map data we need visualisations
+
+- Need to understand if our data looks correct or not
+
+- {mapview} is a our friend
+
+  * Show mapview of sf, sp, raster datasets
+  * Show that a legend can be turned on
+    
+## {sf} for simple features
+
+- Most maps are comprised of simple features: lines, shapes etc
+
+- {sf} is the modern solution for working with these objects
+
+- We'll use this package for many things throughout the course
+
+* Install the {sf} package
+
+* Show that {sf} objects look like special data.frames
+    
+```{r}
+tidycensus::state_laea %>%
+  mapview()
+```
+    
+* Show that {sp} objects can be converted to {sf} objects easily
+    
+```{r}
+countries110 %>%
+  st_as_sf()
+```
+
+## Turning tables into sf objects
+
+- Import a csv file of coordinates
+
+- Need to tell {sf} where the geometry part of our dataset is
+
+- Advise starting with a tibble:
+
+```{r}
+quakes %>%
+  as_tibble() %>%
+  st_as_sf(coords = c("long", "lat"))
+```
+
+- Need to supply CRS data!
+
+```{r}
+quakes %>%
+  as_tibble() %>%
+  st_as_sf(coords = c("long", "lat")) %>%
+  st_set_crs(4326) %>%
+  mapview()
+```
+
+## Converting addresses to coordinates
+
+- This a common task, there are several packages that provide this functionality.
+
+- {tmaptools} provides the most flexible solution at the moment.
+
+```{r}
+library("tmap")
+library("tmaptools")
+library("sf")
+library("mapview")
+data(metro)
+# sample 5 cities from the metro dataset
+five_cities <- metro[sample(length(metro), 5),]
+
+# obtain geocode locations from their long names
+five_cities_geocode <-
+  geocode_OSM(five_cities$name_long, as.sf = TRUE, 
+              details = TRUE)
+
+five_cities_geocode
+
+five_cities_geocode %>%
+  st_set_geometry("bbox") %>%
+  mapview()
+
+five_cities_geocode %>%
+  mapview()
+```
+
+- If `geocode_OSM(as.sf = TRUE)` we only get one result, we can get many as follows
+
+```{r}
+geocode_many <- geocode_OSM(c("Padding Station, London", "6 Corunna Crescent, Oxford", "BS16 6AB United Kingdom", "22 Renfrew Close, Wordsley"),
+            return.first.only = FALSE,
+            details = TRUE)
+
+geocode_many %>% 
+  as_tibble() %>%
+  st_as_sf(coords = c("lon", "lat")) %>%
+  st_set_crs(4326) %>%
+  mapview()
+```
+
+## Importing shapefiles
+
+- Choropleth are amongst the most widely recognised and used charts
+
+- To build choropleth we need to obtain shapefiles from somewhere
+
+- Shapefiles can be found in either ESRI or geoJSON datasets
+
+- They're imported with `read_sf()`
+
+- These come from many different places
+
+## Joining geospatial datasets
+
+## Country specific administrative regions
+
+- There are many packages that contain these datasets, see my tweet! https://twitter.com/charliejhadley/status/1293924397741465603?s=20
+
+- 
+
+## {stars} for raster data
+
+- Raster data is very specific
+
+- We use {stars} for it
+
+- This is a very good example https://rud.is/books/30-day-map-challenge/raster-01.html
+
+
+# Computing on GIS data
+
+## Projecting maps 
+
+This is a quote from Geocomputation with R [https://geocompr.robinlovelace.net/spatial-class.html#crs-intro]
+
+> geographic coordinate systems identify any location on the Earth’s surface using two values — longitude and latitude. Longitude is location in the East-West direction in angular distance from the Prime Meridian plane. Latitude is angular distance North or South of the equatorial plane. Distances in geographic CRSs are therefore not measured in meters. This has important consequences, as demonstrated in Section 6.
+
+Need to reproject!!!
+
+# Static maps with ggplot2
+
+## Geo scatter and bubble charts
+
+- Geo scatter plots are nice and simple
+
+- Geo bubble charts require you to scale by area and not radius
+
+## Choropleth with a categorical variable
+
+- Show how to change the scale with:
+
+  - scale_fill_manual()
+  - scale_fill_brewer()
+
+## Choropleth with a continuous variable
+
+## Labelling ggplot2 maps
+
+## Tips for ggplot2 maps
+
+- Zoom in with
+
+```{r}
+geom_sf(data = worldmap) +
+    coord_sf(xlim = c(-20, 45), ylim = c(30, 73), expand = FALSE) +
+    theme_bw()
+```
+
+# Interactive maps with leaflet
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
