@@ -1,0 +1,51 @@
+---
+title: "Country specific administrative regions"
+output:
+  xaringan::moon_reader:
+    css: ["style.css", "default"]
+    lib_dir: libs
+    df_print: paged
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r child = "setup.Rmd"}
+```
+
+```{r, include=FALSE, eval=TRUE}
+library("sf")
+library("tidyverse")
+library("rnaturalearthdata")
+library("mapview")
+library("patchwork")
+library("leaflet")
+library("leaflet.extras")
+library("readxl")
+library("janitor")
+library("stars")
+library("emo")
+```
+
+class: center, middle, dk-section-title
+background-image:url("images/street-sign.jpeg")
+background-size: 100%
+
+# Country specific administrative regions
+
+---
+
+## My tweet!
+
+- There are many packages that contain these datasets, see my tweet! https://twitter.com/charliejhadley/status/1293924397741465603?s=20
+
+
+
+
+
+
+

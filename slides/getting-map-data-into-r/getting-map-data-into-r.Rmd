@@ -27,6 +27,10 @@ library("leaflet")
 library("leaflet.extras")
 library("albersusa")
 library("rayshader")
+library("threejs")
+library("politicaldata")
+library("ggtext")
+library("janitor")
 countries_sf <- countries110 %>%
   st_as_sf()
 
@@ -98,12 +102,10 @@ The vast majority of this work is shouldered by these two packages - sf and mapv
 I'm starting off with an explanation of how complex maps are because I think it's important, and you'll need to understand some things before you can create good and meaningful maps. But in a few minutes, after talking about all the complexity of maps I'll show how in a few lines of code these packages allow us to get usable maps.
 
 ---
-background-image:url("images/3d-to-2d.png")
-background-size: contain
 
 ## Maps flatten a complex world (I)
 
-```{r eval=FALSE, include=FALSE}
+```{r eval=TRUE, include=FALSE}
 ## This code was used to generate the ggplot2 charts that were then shoved
 ## into PowerPoint and set at the background image
 gg_web_mercator <- countries_sf %>%
@@ -124,15 +126,34 @@ gg_pall_peters <- countries_sf %>%
   coord_sf(crs = "+proj=cea", expand = FALSE) +
   theme_cjh_map()
 
-gg_web_mercator %>%
-  gg_save_nicely("images/gg_web_mercator.png")
-
-gg_robinson %>%
-  gg_save_nicely("images/gg_robinson.png")
-
-gg_pall_peters %>%
-  gg_save_nicely("images/gg_pall_peters.png")
+# gg_web_mercator %>%
+#   gg_save_nicely("images/gg_web_mercator.png")
+# 
+# gg_robinson %>%
+#   gg_save_nicely("images/gg_robinson.png")
+# 
+# gg_pall_peters %>%
+#   gg_save_nicely("images/gg_pall_peters.png")
 ```
+
+.pull-left[
+```{r, eval=TRUE, echo=FALSE, out.width="400px"}
+
+earth <- "http://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200412.3x5400x2700.jpg"
+globejs(img=earth, 
+        atmosphere = TRUE,
+        bg = "white",
+        width = "400px",
+        height = "400px")
+```
+]
+
+.pull-right[
+```{r, eval=TRUE, echo=FALSE}
+gg_robinson / gg_web_mercator
+```
+
+]
 
 ???
 
@@ -186,7 +207,7 @@ The Coordinate Reference System (CRS) of a geospatial dataset specifies the proj
 
 ???
 
-... we're going to cover the technical (and code side of) projections in the geographic computations section of the course, but before we can create ANY maps or work with any geospatial dataset we need to establish a default coordinate reference system - or CRS.
+... we're going to cover the technical (and code side of) projections later in the course, but before we can create ANY maps or work with any geospatial dataset we need to establish a default coordinate reference system - or CRS.
 
 ---
 
@@ -211,7 +232,7 @@ quakes %>%
 
 ... the world's most commonly used projection is called WGS84, but in our code we'll be referring to it by its EPSG code: 4326... 
 
-... you'll see this magic number pop up all of the time throughout the course, and I'll give a detailed explanation of it in the geographic computations section.
+... you'll see this magic number pop up all of the time throughout the course, and I'll give a more detailed explanation of projections in the projecting maps and CRS video later in this section.
 
 ---
 
@@ -370,10 +391,145 @@ We're fortunate that the R ecosystem contains R packages that contain pre-manipu
 
 ---
 
+class: center, middle, dk-section-title
+background-image:url("images/desk-office-pen-ruler.jpg")
+background-size: contain
+
+## Are maps worth it?
+
+???
+
+I've highlighted many ways that maps are complex to make, so I think it's sensible to question - are maps worth all of this effort?
+
+Are there alternative visualisations we could use?
+
+---
+
+### Choropleth are the gold standard for election data
+
+.pull-left[
+```{r, eval=TRUE, echo = FALSE}
+pres_2016 <- pres_results %>%
+  filter(year == 2016) %>%
+  mutate(winner = if_else(dem > rep, "Democrat", "Republican"))
+
+usa_sf <- usa_sf()
+pres_2016_sf <- usa_sf %>%
+  left_join(pres_2016,
+            by = c("iso_3166_2" = "state"))
+
+ggplot() +
+  geom_sf(data = pres_2016_sf,
+          aes(fill = winner)) +
+  scale_fill_manual(values = c("Democrat" = "#516DA9",
+                               "Republican" = "#FF4A49")) +
+  theme_void(base_size = 16) +
+  labs(title = "States won by <span style='color:#516DA9'>**Hillary Clinton**</span> and <span style='color:#FF4A49'>**Donald Trump**</span> 
+       in the 2016 Presidential race") +
+  theme(plot.title = element_textbox_simple()) +
+  guides(fill = guide_none())
+```
+]
+
+.pull-right[
+```{r, eval=TRUE, echo=FALSE}
+uk_authority_shp <- read_sf("../../data/local-authority-shapefiles")
+
+referendum_votes <- read_csv("https://data.london.gov.uk/download/eu-referendum-results/52dccf67-a2ab-4f43-a6ba-894aaeef169e/EU-referendum-result-data.csv") 
+referendum_votes <- clean_names(referendum_votes)
+
+referendum_votes <- referendum_votes %>%
+  select(area_code, area, electorate, votes_cast, valid_votes, pct_remain, pct_leave)
+
+
+referendum_votes <- referendum_votes %>%
+  mutate(result = case_when(pct_remain > pct_leave ~ "Remain",
+                            pct_remain < pct_leave ~ "Leave"))
+
+brexit_by_authority <- uk_authority_shp %>%
+  dplyr::inner_join(referendum_votes,
+                    by = c("lad17cd" = "area_code")) %>%
+  select(area, electorate, result, votes_cast, valid_votes, pct_remain, pct_leave, everything())
+
+
+brexit_by_authority %>%
+  ggplot() +
+  geom_sf(aes(fill = result),
+          colour = "white",
+          lwd = 0.1) +
+  scale_fill_manual(values = c("Leave" = "#005ea7", "Remain" = "#ffb632")) +
+  theme_void(base_size = 16) +
+  labs(title = "Constituencies that voted <span style='color:#005ea7'>**Leave**</span> and <span style='color:#ffb632'>**Remain**</span> in the 2016 Brexit Referendum") +
+  theme(plot.title = element_textbox_simple(minwidth = unit(5, "in"),
+                                            maxwidth = unit(8, "in"))) +
+  guides(fill = guide_none())
+```
+
+]
+
+???
+
+Often, maps are the very best choice for visualising election data. And specifically, choropleth have become the gold standard for visualising election results.
+
+Choropleth is the technical name for a shaded area map. This slide contains two choropleth visualising the results of two famous votes held in 2016 - the first shows which candidate each voted for in the Presidential elections and the second highlights the significant differences between Scottish, English and Welsh results in the Brexit referendum.
+
+It's hard to think of an alternative visualisation that makes more sense for this kind of data.
+
+---
+
+## Maps show where things happen
+
+<center>
+```{r, eval=TRUE, echo=FALSE}
+quakes_sf <- quakes %>%
+  st_as_sf(coords = c("long", "lat"), crs = 4326) %>%
+  mutate(mag = as.numeric(mag)) %>%
+  arrange(mag)
+
+pal <- colorNumeric("PRGn", quakes_sf$mag)
+
+label_earthquake <- function(mag, stations){
+  paste(
+    mag, "on the Richter scale",
+    "<br>",
+    "Measured by", stations, "stations"
+  )
+}
+
+quakes_sf %>%
+  leaflet() %>%
+  addProviderTiles(providers$Esri.OceanBasemap) %>%
+  addCircleMarkers(
+    fillColor = ~pal(mag),
+    # clusterOptions = markerClusterOptions(),
+                   radius = ~scales::rescale(mag, c(5, 30)),
+    stroke = TRUE,
+    weight = 1,
+    color = "black",
+    fillOpacity = ~scales::rescale(mag, c(0.7, 0.3)),
+    popup = ~label_earthquake(mag, stations)
+    ) %>%
+  addLegend(pal = pal,
+            values = ~mag,
+            title = "Earthquake magnitude",
+            position = "bottomleft")
+```
+</center>
+
+???
+
+Ultimately, maps show where things happen or have happened in the past. If the relative location of data points matters then it is more than likely that creating a map will be worth all of the complexities I've highlighted.
+
+This map helps us visualise the clusters of Earthquakes scattered around Fiji and their relative strength. It's difficult to think of an alternative chart that allows us to do both things at once.
+
+---
+
 ## R is a complete GIS system
 
 .pull-left[
-Software designed to work with geospatial data is called GIS software. Most dedicated GIS tools are expensive and extremely technical to use.
+Software designed to work with geospatial data is called GIS (Geospatial Information System) software. 
+
+Most dedicated GIS tools are expensive and extremely technical to use.
 
 R is without doubt a complete and powerful GIS system. We can use it to map or manipulate any and all geospatial datasets.
 ]
@@ -395,153 +551,13 @@ render_snapshot("images/rayshader-montereybay.png")
 
 ???
 
-Now I've taken you through the complexities of making maps I want to conclude by saying that are is a complete and very powerful GIS system. We can use it to map or manipulate any and all geospatial datasets.
+Okay! So I've taken you through the complexities of making maps, and very quickly argued that making maps is often worth the trouble. I want to finish by talking about GIS software.
 
----
+GIS stands for Geospatial Information Systems and any software designed to process and/or visualise geospatial data is classified as GIS software.
 
-class: center, middle, dk-section-title
-background-image:url("images/mapview-logo.gif")
-background-size: 400px
+Most dedicated GIS tools are expensive and require technical expertise in GIS data manipulation.
 
-# {mapview} for quick maps
+R without a doubt provides a complete and very powerful GIS system for manipulating and visualising any GIS dataset you could come across and we can use all of the flexibility and friendliness of the tidyverse to make sense of the data.
 
-???
+I'll finish up by saying every single map in these slides was created using R codeand the "Learn more" section will provide more details.
 
-Geospatial data is very different from rectangular datasets you might find in Excel files, it's often impossible to really understand your geospatial datasets before you've taken a look at them.
-
-That's why I'm going to introduce you to the mapview package before we get bogged down with anything else.
-
----
-
-## {mapview} is built for quick dataviz
-
-With {ggplot2} we can build print quality static maps.
-
-With {leaflet} we can build rich, interactive maps.
-
-With {mapview} we can check if our data makes sense.
-
-???
-
-The mapview package is designed exclusively for quick and dirty visualisations to check that our data makes sense. We would never use it for creating maps that we wanted others to see, that's what {ggplot2} and {leaflet} are for which have their own dedicated chapters in this coure.
-
-Let's go into RStudio and demonstrate how the package works.
-
----
-
-## (RStudio Coding Slide)
-
-???
-
-[Switch to RStudio with the following packages loaded] 
-
-library("mapview")
-library("rnaturalearthdata")
-library("albersusa")
-library("stars")
-
-satellite_image <- system.file("tif/L7_ETMs.tif", package = "stars")
-
-I've loaded the mapview package so we can show it works and I've also loaded two packages that contain geospatial datasets:
-
-- rnaturalearthdata is my favourite source of country shapefiles for the whole world, and we'll be using it often during the course.
-
-- alberusa contains the same manipulated map of the USA that I showed in the previous section, where Alaska and Hawaii are tucked below the contiguous states.
-
-- the final package I've loaded is called stars, which is used for working with raster geospatial data. There's also one pre-written line of code to correctly load in a stars compatible dataset.
-
-Let's load these packages and load in our satellite_image dataset.
-
-I want to get the country shapefiles first, so let's do that... 
-
-countries110
-
-if I print the object to the console we can see it's something called a SpatialPolygonsDataFrame... we don't really need to care about that means right now, we know it's a spatial dataset - so let's throw it into mapview()
-
-mapview(countries110)
-
-And immediately we get an interactive map that verifies we're looking at country borders! If I click on, say Russia the mapview chart will show me all of the information about that country (or more technically, the polygon).
-
-Okay! Now let's look at a different dataset from the same rnaturaldata package:
-
-tiny_countries110
-
-This is a different kind of thing called a SpatialPointsDataFrame... but we can give it to mapview all the same:
-
-mapview(tiny_countries110)
-
-Mapview knows exactly what to do, we get points! Again I can click on one, for instance "Comoros"... a good question is - why are these points instead of polygons? Well, they're smaller than the highest resolution of shapefiles available from rnaturalearthdata - so the best they can do is place a circle at the centre of the shape.
-
-... now most of the time that we'll use mapview in the course we'll be using the pipe, let's demonstrate that with the usa_sf() object [see it's a different kind of dataset]
-
-usa_sf() %>% mapview()
-
-But, unfortunately the {mapview} package doesn't include a definition of the pipe. There's lots of packages that do load in the pipe, but I'm going to choose to load the tidyverse as that's where we'll usually get the pipe later in the course.
-
-library("tidyverse")
-
-Okay! Before we re-run our pipe, let's show that we can make mapview more useful by colouring our choropleth by a variable:
-
-usa_sf() %>% 
-  mapview(zcol = "pop_2014", legend = TRUE)
-  
-Great! We've seen that mapview can be used to quickly visualise polygons and points, but it's also clever enough to work with raster datasets.
-
-We need to load in the dataset and provide it to mapview()
-
-satellite_image %>%
-  read_stars() %>%
-  mapview()
-  
-And we get back a satellite map!
-
----
-
-## mapview features
-
-.pull-left[
-- Designed to be fast
-
-- Works with all geospatial data packages
-
-  - `{sp}`
-  - `{sf}`
-  - `{stars}`
-  
-- Can be further customised, see package website for more details: <br>[r-spatial.github.io/mapview](http://r-spatial.github.io/mapview)
-]
-
-.pull-right[
-```{r, eval=TRUE, echo=FALSE, out.width="450px", out.height="450px"}
-mapview(franconia, color = "cyan", col.regions = "white", lwd = 3)
-```
-
-]
-
-???
-
-... and that's the mapview package in a nutshell. It's extremely useful because it's designed to be fast, and it works with all of the geospatial data packages that we're going to use in the course.
-
-This covers absolutely everything that I do with the mapview package, if you're interested in customising its maps a little more then check out the package website for examples and resources.
-
-
-
----
-
-class: inverse, my-turn
-
-### My turn
-
-I'll do a thing
-
-```{r echo=TRUE, eval = TRUE}
-ggplot()
-```
-
----
-
-class: inverse
-
-### Your turn
-
-You do a thing

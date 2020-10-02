@@ -162,17 +162,6 @@ geocode_many %>%
 
 - 
 
-## {stars} for raster data
-
-- Raster data is very specific
-
-- We use {stars} for it
-
-- This is a very good example https://rud.is/books/30-day-map-challenge/raster-01.html
-
-
-# Computing on GIS data
-
 ## Projecting maps 
 
 This is a quote from Geocomputation with R [https://geocompr.robinlovelace.net/spatial-class.html#crs-intro]
@@ -180,6 +169,14 @@ This is a quote from Geocomputation with R [https://geocompr.robinlovelace.net/s
 > geographic coordinate systems identify any location on the Earth’s surface using two values — longitude and latitude. Longitude is location in the East-West direction in angular distance from the Prime Meridian plane. Latitude is angular distance North or South of the equatorial plane. Distances in geographic CRSs are therefore not measured in meters. This has important consequences, as demonstrated in Section 6.
 
 Need to reproject!!!
+
+## {stars} for raster data
+
+- Raster data is very specific
+
+- We use {stars} for it
+
+- This is a very good example https://rud.is/books/30-day-map-challenge/raster-01.html
 
 # Static maps with ggplot2
 

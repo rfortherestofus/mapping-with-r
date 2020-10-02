@@ -373,7 +373,7 @@ There's one last thing I need to talk about with repect to the {sf} package and 
 
 Thankfully, it's very easy to convert `{sp}` objects to `{sf}` - and I'll show you how in a minute.
 
-... but how do we know if we're dealing with sp objects? They're all Spatial - Something - DataFra,es
+... but how do we know if we're dealing with sp objects? They're all Spatial - Something - DataFrames
 
 ---
 
@@ -460,30 +460,61 @@ Now, no matter what type of SpatialDataFrame we have we always use the st_as_sf(
 
 countries110 %>%
   st_as_sf()
+  
+We're going to use this dataset fairly often, so let's get used to storing it as the variable countries_sf
 
-Let's finish this video off by visualising this dataset except for Antartica - it often gets in the way of dataviz:
+countries_sf <- countries110 %>%
+  st_as_sf()
 
-countries110 %>%
-  st_as_sf() %>%
+Let's take a quick gander at the dataset using mapview
+
+countries_sf %>%
+  mapview()
+  
+Great! Our map seems to contain country borders! But there's three important things to take note of:
+
+- This doesn't include small countries. 
+
+... some countries and territories are too small for the size scale in this dataset. But the rnaturalearthdata package does include the centroids of these regions which we can add to our map. Let's go back to the code and we can see that tiny_countries110 exists
+
+tiny_countries110
+
+It's an sp object, but we know mapview can handle these to let's throw both of these datasets into mapview - to do this we need to provide a list in the first argument:
+
+mapview(list(countries_sf, tiny_countries110))
+
+Okay, and so we see that both Bahrain and Signapore are contained in the tiny countries dataset.
+
+I said there were three important things about this map to take note of, the second is just how much space Antarctica takes up but it's not a permanently populated continent so it's unlikely you'll have data for the region - and we don't need to show Antarctica for readers to properly orientate themselves.
+
+So often we throw away Antarctica using the filter function
+
+countries_sf %>%
   filter(!name == "Antarctica") %>%
   mapview()
+  
+Let's also use the zcol argument of mapview() to colour the countries by continent.
 
+countries_sf %>%
+  filter(!name == "Antarctica") %>%
+  mapview(zcol = "continent")
 
+Now I can show you the third important part of this dataset! There's part of Europe in South America.
 
+If I zoom in we can see this patch of blue that's apparently France! Let's take a look at that:
 
+countries_sf %>%
+  filter(name == "France") %>%
+  mapview()
 
+Both of France's non-mainland territories are included as one single multipolygon! The {sf} package makes it easy to separate these out with st_cast():
 
----
+countries_sf %>%
+  filter(name == "France") %>%
+  st_cast("POLYGON") %>%
+  mapview()
 
-class: inverse, my-turn
-
-### My turn
-
-I'll do a thing
-
-```{r echo=TRUE, eval = TRUE}
-ggplot()
-```
+But note that the observations for France have been duplicated for all three polygons. If you are working on maps of France you'll need to find additional data sources, or potentially alternative shapefiles. Later in the course I'll mention the rgeobounaries and other options for finding country-specific regions.
 
 ---
 
@@ -491,4 +522,14 @@ class: inverse
 
 ### Your turn
 
-You do a thing
+Use `mapview()` to visualise only the regions in `tiny_countries110` where the UN region is either "Seven Seas (open ocean)" or "Oceania".
+
+- The features of the map should be coloured by the UN region each belongs to.
+
+???
+
+tiny_countries110 %>%
+st_as_sf() %>%
+filter(region_un %in% c("Seven seas (open ocean)", "Oceania")) %>%
+mapview(zcol = "region_un")
+

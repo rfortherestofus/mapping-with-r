@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Converting addresses to coordinates</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+    <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Converting addresses to coordinates
+
+---
+
+
+
+
+
+layout: true
+  
+&lt;div class="dk-footer"&gt;
+&lt;span&gt;
+&lt;a href="https://rfortherestofus.com/" target="_blank"&gt;R for the Rest of Us
+&lt;/a&gt;
+&lt;/span&gt;
+&lt;/div&gt; 
+
+---
+
+
+
+class: center, middle, dk-section-title
+background-image:url("images/street-sign.jpeg")
+background-size: 100%
+
+# Converting addresses to coordinates
+
+???
+
+In this video we're going to look at how we can convert street addresses into coordinates that we can then display on a map using {mapview}
+
+---
+
+## Addresses are messy 
+
+Street addresses are extremely messy and very *human* datasets.
+
+--
+
+.pull-left[
+Addresses can refer to many different things:
+
+- A building
+
+- A floor in a building
+
+- A collection of buildings
+
+- A city/town/province or other region
+]
+
+--
+
+.pull-right[
+
+Additionally:
+
+- Addresses are often incomplete
+
+- Addresses vary significantly internationally
+
+]
+
+
+
+???
+
+It's important to acknowledge from the beginning that street addresses are extremely messy and very human datasets... because they attempt to both name and locate things within human settlements - which are intrinsically messy.
+
+Let's take a moment to think about what an address might refer to:
+
+- Often addresses are for specific buildings, but they might refer to a specific floor in a building or an address could refer to a collection of buildings (for instance a University)
+
+- and of course an address might actually refer to a region instead of a specific place, and we have lots of different types of regions including cities, towns, provinces, states and many more besides.
+
+There are two more things we need to keep in mind:
+
+- Addresses are often incomplete, particularly if your dataset has been built from users typing their own addresses.
+
+- Addresses vary significantly internationally, both in terms of what data is provided and what order.
+
+---
+
+## Geocoding: Forwards &amp; Reverse
+
+Geocoding is the process of converting between addresses and geographic coordinates.
+
+- **Forward geocoding** *attempts* to converts an address into coordinates.
+
+- **Reverse geocoding** *attempts* converts coordinates into an address.
+
+There are multiple R packages that 
+
+???
+
+The process of converting between geographic coordinates and addresses is called geocoding.
+
+Forward geocoding is what we're going to cover in this video as it's the most common operation - attempting to convert a street address into a set of longitude and latitude coordinates.
+
+Reverse geocoding is much less common and attempts to do the opposite - generating a human description of geographic coordinates.
+
+Now I've introduced this, let's compare the R packages that allow us to do forward geocoding.
+
+---
+
+## Geocoding packages
+
+There are 3 popular packages used for forward geocoding with R.
+
+| Package | Requires billing details? | Parse multiple addresses? |
+| :-- | :--: | :--: |
+| `{ggmap}` | ✅ | ✅ |
+| `{opencage}` | ❌ |  ❌ |
+| `{tmaptools}` | ❌ | ✅ |
+
+???
+
+There are several packages that contain forward geocoding functionality, I want to highlight 3 of them:
+
+- ggmap
+- opencage
+and tmaptools
+
+We're going to compare the packages in turn with two questions - does the package require billing details and does it parse multiple addresses?
+
+---
+
+## {ggmap} for geocoding
+
+The `ggmap::geocode()` function uses the Google Maps Geocoding API.
+
+- To use the API you must provide billing details.
+
+- The API does provide **monthly free credits**.
+
+For more information read the docs: [developers.google.com/maps/documentation/geocoding/overview](https://developers.google.com/maps/documentation/geocoding/overview)
+
+???
+
+The {ggmap} package uses the Google Maps Geocoding API, which means you're making use of all the knowledge and complexity built into the industry leading online mapping tool.
+
+To take advantage of this API you need to provide your billing details, it's not possible to use the geocode() function without giving Google your credit card number.
+
+This isn't a conspirtorial comment about giving information to Google, it's something you need to be aware of and I've concluded that the majority of folks taking this course won't be able to justify the cost of the API when there are good alternatives available.
+
+If you do decide you want to use this package it is very well documented, and Google do provide free credits for the API every month.
+
+For more information about the service please read the Google Maps Platform documentation.
+
+---
+
+## {opencage} for geocoding
+
+The `{opencage}` package wraps the OpenCage geocoding service.
+
+&lt;hr&gt;
+
+As of late 2020 the CRAN version of the package is difficult to use and out of date.
+
+There are two options for using this package:
+
+- [Check if the CRAN package is newer than version 0.1.4](https://cran.r-project.org/web/packages/opencage/index.html)
+
+- Install the development version of the package:
+
+
+```r
+remotes::install_github("ropensci/opencage", ref = "devel")
+```
+
+???
+
+The `{opencage}` package wraps the Open Source and very powerful geocoding service provided by OpenCage.
+
+Unfortunately, at the time of recording this in late 2020 the version of the package available on CRAN is difficult to use and very much out of date with the OpenCage API.
+
+In my opinion you have two options available:
+
+- check if the CRAN version of the package is newer than version 0.1.4 .... I'll show you how to do that, I've  linked to the Description page for the package in the slide and the version number is shown here.
+
+- or you could install the development version of the package from GitHub.
+
+This is very much a moving target, and I can't promise exactly how the package will work in the future.
+
+Fortunately, the tmaptools package comes to our rescue.
+
+---
+
+## {tmaptools} for geocoding
+
+`tmaptools::geocode_OSM()` uses the free OpenStreetMap Nominatim service.
+
+It is a free and easy to use this tool for general purpose geocoding. 
+
+However, if you plan for "heavy use" refer to the [Nominatim Usage Policy](https://operations.osmfoundation.org/policies/nominatim/).
+
+???
+
+I would recommend `{tmaptools}` as the best option for geocoding with R, it's free and easy to use for most general use cases.
+
+If you're planning on more "heavy use" then please refer to the Nominatim Usage Policy.
+
+Okay! Now let's go and actually use the package
+
+---
+
+## Worked Example
+
+Please open the "addresses-to-coordinates" project in the worked-exercises folder.
+
+
+```yaml
+mapping-with-r
+└── worked-exercises
+  └── addresses-to-coordinates
+      ├── addresses-to-coordinates.Rproj
+      └── data
+```
+
+???
+
+Let's load up the addresses-to-coordinates.Rproj as it contains two datasets we're going to work with.
+
+---
+
+# (RSTUDIO CODING SLIDE)
+
+???
+
+Okay! I've already loaded up my packages
+
+library("tidyverse") for manipulating our data
+library("tmaptools") for the geocoding
+library("sf") for manipulating geospatial datasets
+library("mapview") for visualising
+library("readxl") for importimg
+library("janitor")
+
+Before we import our dataset let's introeuce the geocode_OSM function:
+
+it takes a vector in the first argument, so let's give it 2 famous addresses in London:
+
+geocode_OSM(c("10 Downing Street, London", "221B Baker Street, London"))
+
+It spits out a data.frame... but ideally we want an "sf" object. Forunately, there's an as.sf argument for the function that does all the work for us:
+
+geocode_OSM(c("10 Downing Street, London", "221B Baker Street, London"), as.sf = TRUE)
+
+That's an sf object! But notice it has a new line:
+
+"Active geometry column: point"
+
+That's because the geocode_OSM function is clever and it gives both a point and a bounding box. This will make a little bit more sense later. For now let's just verify we can visualise the coordinates with mapview()
+
+geocode_OSM(c("10 Downing Street, London", "221B Baker Street, London"), as.sf = TRUE) %&gt;%
+  mapview()
+  
+Now we've figured out how to use the function with a toy dataset, let's look at a more realistic dataset in our Excel file..
+
+it's got two worksheet in it, UK Addresses and a second sheet containing International Addresses
+
+---
+
+class: my-turn
+
+## My Turn
+
+I'll import and geocode the addresses in the UK Addresses tab of our Excel file.
+
+???
+
+For my turn I'm going to process the UK addresses and afterwards you'll be converting the international addresses...
+
+---
+
+## (RSTUDIO CODING SLIDE)
+
+???
+
+Let's import the sheet and print the tibble to the console:
+
+uk_addresses &lt;- read_excel("data/street-addresses.xlsx",
+                           sheet = "UK Addresses")
+                           
+The column names are going to be frustrating to work with as they've got spaces in them, so I'll use clean_names() from the janitor package to tidy them up.
+
+uk_addresses &lt;- clean_names(uk_addresses)
+
+Okay! So our task is to combine our columns into one string that we can then give to the geocode_OSM() function.
+
+Let's try using paste:
+
+uk_addresses %&gt;%
+  mutate(address_query = paste(business_name, street, city, post_code, country, sep = " ")) %&gt;%
+  select(address_query, everything())
+
+This isn't going to work out well for us! The NA values in our data are ending up in our addresses! geocode_OSM() is not going to like these.
+
+So what we need is a way to convert the NA values to empty strings, we can do that with the across() function:
+
+uk_addresses %&gt;%
+  mutate(across(everything(), ~replace_na(.x, "")))
+  
+And now we can combine all of this together!
+
+uk_addresses &lt;- uk_addresses %&gt;%
+  mutate(across(everything(), ~replace_na(.x, ""))) %&gt;%
+  mutate(address_query = paste(business_name, street, city, post_code, country, sep = " ")) %&gt;%
+  select(address_query, everything()) 
+  
+Now let's try geocoding these addresses:
+
+uk_geocoded &lt;- geocode_OSM(uk_addresses$address_query, as.sf = TRUE)
+
+We get an error telling us that the function was not able to find results for Paddington Underground Station. If we take a look at our object we can see this means we don't have a row for it
+
+... this is actually a quite interesting corner case, the geocoding has failed because I have been overly specific! If the address contained "Paddington Station" and omitted the word "Underground" it would've worked. This is a good example of how frustrating geocoding can be! Let's continue with the dataset as is to see what happens when geocoding fails.
+
+We need to join together our uk_addresses data with the geocoded data. There's a video later in this section that goes into the technical details of how to do joind with sf objects, for now I'll tell you which function we need to use:
+
+uk_geocoded %&gt;%
+  right_join(uk_addresses,
+            by = c("query" = "address_query"))
+            
+That gives us an sf object that looks right! Let's use mapview to check!
+
+uk_geocoded %&gt;%
+  right_join(uk_addresses,
+            by = c("query" = "address_query")) %&gt;%
+  mapview()
+  
+Great! Those points are where I expect them to be. But what about the bbox column that geocode_OSM() creates? Well, we can change the active geometry column as follows:
+
+uk_addresses %&gt;%
+  mutate(across(everything(), ~replace_na(.x, ""))) %&gt;%
+  mutate(address_query = paste(business_name, street, city, post_code, country, sep = " ")) %&gt;%
+  select(address_query, everything()) %&gt;%
+  add_coords(address_query) %&gt;%
+  st_set_geometry("point") %&gt;%
+  mapview()
+  
+There's now a huge square over Birmingham. That's because the only information I provided in the Excel file was "Birmingham, UK". I'll also zoom in on Leeds so we can see that the boundary box encompasses the whole of the University of Leeds campus!
+
+Okay! So that's how we can convert addresses into coordinates using the {tmaptools} package.
+
+---
+
+class: inverse
+
+## Your Turn
+
+Convert the addresses in the "International Addresses" worksheet into coordinates and visualise them.
+
+1. Import the "International Addresses" worksheet
+
+1. Use `geocode_OSM()` to convert the addresses into coordinates
+
+1. Join the two datasets with `left_join()`
+
+1. Visualise the locations with `{mapview}`
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
