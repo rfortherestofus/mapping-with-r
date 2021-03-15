@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Basics of using the {stars} package</title>
+    <meta charset="utf-8" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+    <script src="libs/pagedtable-1.1/js/pagedtable.js"></script>
+    <link rel="stylesheet" href="style.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Basics of using the {stars} package
+
+---
+
+
+
+
+
+layout: true
+  
+&lt;div class="dk-footer"&gt;
+&lt;span&gt;
+&lt;a href="https://rfortherestofus.com/" target="_blank"&gt;R for the Rest of Us
+&lt;/a&gt;
+&lt;/span&gt;
+&lt;/div&gt; 
+
+---
+
+
+
+class: center, middle, dk-section-title
+background-image:url("https://images.pexels.com/photos/347143/pexels-photo-347143.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=750&amp;w=1260")
+
+# Basics of using the {stars} package
+
+---
+
+## What files am I looking for?
+
+There are **many** raster GIS formats for data cubes (and higher dimensional data).
+
+The most common formats are:
+
+- .tif (known as GeoTIFF)
+
+- .nc (netCDF)
+
+---
+
+### `{stars}` objects: &lt;span style="color:#E76826"&gt;dimensions&lt;/span&gt; vs &lt;span style='color:#4B88CB'&gt;attributes&lt;/span&gt;
+
+- `{stars}` objects are very different from `data.frame` and `tibble`. 
+
+- `{stars}` objects have &lt;span style="color:#E76826"&gt;dimensions&lt;/span&gt; and &lt;span style='color:#4B88CB'&gt;attributes&lt;/span&gt; which have different roles in tidyverse data wrangling tasks.
+
+---
+
+### `{stars}` objects: &lt;span style="color:#E76826"&gt;dimensions&lt;/span&gt; vs &lt;span style='color:#4B88CB'&gt;attributes&lt;/span&gt;
+
+- Sometimes it's useful to store variables as &lt;span style="color:#E76826"&gt;dimensions&lt;/span&gt; whereas other times &lt;span style='color:#4B88CB'&gt;attributes&lt;/span&gt; make more sense.
+
+.pull-left[
+&lt;img src='images/stars_more-dimensions-than-attributes.png'/&gt;
+]
+
+.pull-right[
+&lt;img src='images/stars_more-attributes-than-dimensions.png' style="pmargin-top:400px"/&gt;
+]
+
+---
+
+### `{stars}` objects: &lt;span style="color:#E76826"&gt;dimensions&lt;/span&gt; vs &lt;span style='color:#4B88CB'&gt;attributes&lt;/span&gt;
+
+.pull-left[
+We use &lt;span style="color:#E76826"&gt;dimensions&lt;/span&gt; to `filter()` a `{stars}` object:
+
+- Filtering **x** and **y** to a sub-region of the dataset
+
+- Filtering **time** (i.e. observations on 2015-01-01)
+
+- Filtering a specific **weather_variable**
+
+- Filtering a specific **band**
+]
+
+.pull-right[
+&lt;img src='images/stars_filter_weather_variable.png'/&gt;
+]
+
+---
+
+### `{stars}` objects: &lt;span style="color:#E76826"&gt;dimensions&lt;/span&gt; vs &lt;span style='color:#4B88CB'&gt;attributes&lt;/span&gt;
+
+.pull-left[
+We can calculate new values from &lt;span style='color:#4B88CB'&gt;attributes&lt;/span&gt; using `mutute()`:
+
+
+```r
+australia_weather_data %&gt;% 
+  mutate(temp_range = max_temp - min_temp)
+```
+
+]
+
+.pull-right[
+&lt;img src='images/stars_more-attributes-than-dimensions.png' style="pmargin-top:400px"/&gt;
+]
+
+---
+
+### `{stars}` objects: &lt;span style="color:#E76826"&gt;dimensions&lt;/span&gt; vs &lt;span style='color:#4B88CB'&gt;attributes&lt;/span&gt;
+
+.pull-left[
+Convert dimensions to attributes with `split()`
+
+
+```r
+australia_weather_data %&gt;% 
+  split("weather_variable")
+```
+
+]
+
+.pull-right[
+Convert attributes to dimemnsions with `merge()`
+
+
+```r
+manipulated_aus_data %&gt;% 
+  merge()
+```
+
+]
+
+---
+
+### `{stars}` objects: &lt;span style="color:#E76826"&gt;dimensions&lt;/span&gt; vs &lt;span style='color:#4B88CB'&gt;attributes&lt;/span&gt;
+
+.pull-left[
+Unfortunately, &lt;span style='color:#4B88CB'&gt;attribute&lt;/span&gt; names are often meaningless.
+
+- &lt;span style='color:#4B88CB'&gt;Attributes&lt;/span&gt; might be named after your data file(s)
+
+- `split()` will automagically name &lt;span style='color:#4B88CB'&gt;attributes&lt;/span&gt; `X1` through `XN`
+
+**Store the meaning of &lt;span style="color:#E76826"&gt;dimensions&lt;/span&gt; in a separate file or in plain text.**
+]
+
+.pull-right[
+&lt;img src='images/stars_attribute-names-are-meaningless-2.png'/&gt;
+
+&lt;img src='images/stars_attribute-names-are-meaningless.png'/&gt;
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

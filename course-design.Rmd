@@ -16,9 +16,11 @@ library("rnaturalearthdata")
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# USefuk things
+# Useful things
 
 https://geocompr.robinlovelace.net/
+
+I've got a way to remove unused packaged from .Rmd! It requires using funchir::stale_package_check() (from here https://stackoverflow.com/a/43331282/1659890) on knitr::purl("the.Rmd"). So it's a bit messy but that's okay.
 
 
 # Welcome!

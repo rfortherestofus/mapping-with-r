@@ -1,0 +1,117 @@
+---
+title: "Crop {raster} objects with shapefiles"
+output:
+  xaringan::moon_reader:
+    css: ["style.css", "default"]
+    lib_dir: libs
+    df_print: paged
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r child = "setup.Rmd"}
+```
+
+```{r, include=FALSE, eval=TRUE}
+library("sf")
+library("stars")
+library("raster")
+library("rnaturalearthdata")
+library("mapview")
+library("patchwork")
+library("leaflet")
+library("leaflet.extras")
+library("readxl")
+library("janitor")
+library("emo")
+library("tigris")
+library("tidycensus")
+library("rmapshaper")
+library("patchwork")
+library("tidyverse")
+library("png")
+library("grid")
+library("here")
+library("rgeoboundaries")
+```
+
+class: center, middle, dk-section-title
+background-image:url("https://images.pexels.com/photos/1319460/pexels-photo-1319460.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260")
+background-size:cover
+
+# Crop {raster} objects with shapefiles
+
+---
+
+## Order of operations
+
+.pull-left[
+1. Crop RasterLayer to shapefile region
+
+2. Create a rasterised mask of the region
+
+3. Use the mask to cut out the region of interest
+]
+
+.pull-right[
+
+]
+
+---
+
+## Order of operations
+
+.pull-left[
+1. **Crop RasterLayer to shapefile region**
+
+2. Create a rasterised mask of the region
+
+3. Use the mask to cut out the region of interest
+]
+
+.pull-right[
+<img src='images/raster-crop_crop.png' />
+
+<img src='images/raster-crop_crop-output.png' />
+]
+
+---
+
+## Order of operations
+
+.pull-left[
+1. Crop RasterLayer to shapefile region
+
+2. **Create a rasterised mask of the region**
+
+3. Use the mask to cut out the region of interest
+]
+
+.pull-right[
+<img src='images/raster-crop_rasterised-code.png' />
+
+<img src='images/raster-crop_rasterised-output.png' />
+]
+
+---
+
+## Order of operations
+
+.pull-left[
+1. Crop RasterLayer to shapefile region
+
+2. Create a rasterised mask of the region
+
+3. **Use the mask to cut out the region of interest**
+]
+
+.pull-right[
+<img src='images/raster-crop_final-mask.png' />
+]
+
+

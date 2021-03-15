@@ -1,0 +1,186 @@
+---
+title: "Turning data.frame into {sf} Objects"
+output:
+  xaringan::moon_reader:
+    css: ["style.css", "default"]
+    lib_dir: libs
+    df_print: paged
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r child = "setup.Rmd"}
+```
+
+```{r, include=FALSE, eval=TRUE}
+library("sf")
+library("tidyverse")
+library("rnaturalearthdata")
+library("mapview")
+library("patchwork")
+library("leaflet")
+library("leaflet.extras")
+library("readxl")
+library("janitor")
+library("stars")
+```
+
+class: center, middle, dk-section-title
+background-image:url("images/tables-background-image.jpg")
+background-size: 100%
+
+# Turning data.frame into {sf} Objects
+
+???
+
+
+---
+
+# Worked Example
+
+Download the course materials from the [link in the course page](http://google.com) XXX ADD LINK.
+
+Please open the "airport-locations" project in the worked-exercises folder.
+
+```{yaml}
+mapping-with-r
+└── worked-exercises
+    └── airport-locations
+        ├── airport-locations.Rproj
+        └── data
+```
+
+???
+
+
+
+---
+
+## City coordinates
+
+If you're looking for city coordinates you're in luck:
+
+```{r, eval=TRUE, echo=TRUE}
+maps::world.cities
+```
+
+???
+
+
+---
+
+## Wikipedia pages
+
+Most Wikipedia pages for places contain their coordinates in the summary information.
+
+<a href='https://en.wikipedia.org/wiki/Johannesburg'><img src='images/wikipedia-johannesburg.png'></a>
+
+???
+
+
+
+---
+
+## (RSTUDIO CODE SLIDE)
+
+???
+
+
+Now we're going to create a tibble for containing our places. You might not be that familiar with tibbles, they're tidyverse's augmented data.frame and this video will explain everything you need to know about them!
+
+Let's call our dataset 
+
+interesting_places <- 
+
+and we're going to use the function tribble() that allows us to create tibbles in rows:
+
+interesting_places <- tribble(
+
+)
+
+
+---
+
+## Google Maps coordinates
+
+Coordinates can be extracted from Google Maps results via the URL.
+
+They're formatted as: @latitude,longitude,zoom
+
+<a href='https://www.google.com/maps/place/Alien+Fresh+Jerky/@35.2686897,-116.0728475,17z/data=!3m1!4b1!4m5!3m4!1s0x80c5bdc12de13117:0x82c8af2d9268e01c!8m2!3d35.2686897!4d-116.0706588'><img src='images/google-maps-alien-jerky.png'></a>
+
+???
+
+---
+
+## (RSTUDIO Coding Slide)
+
+???
+
+
+---
+
+## Converting address to coordinates
+
+If you've got street addresses you can programmatically convert these to coordinates.
+
+That's covered in the next video.
+
+???
+
+---
+
+## st_as_sf() makes {sf} objects
+
+The `st_as_sf()` function is used to convert all "foreign" objects into `{sf}` objects, including:
+
+- `{sp}` objects
+- data.frames (and tibbles)
+- lower level geometry objects
+
+--
+
+For data.frame we need to tell the function which columns contain the coordinates:
+
+```{r}
+interesting_places %>%
+  st_as_sf(coords = c("long", "lat"))
+```
+
+
+
+---
+
+## (RSTUDIO CODING SLIDE)
+
+???
+
+
+---
+class: inverse
+
+## Your turn
+
+Visualise the locations of the airports in the `airports-with-most-seat-kilometers_2015.xlsx` file
+
+- Import the file with `read_excel()`
+
+- Use the `separate()` function from `{tidyr}` to split the coordinates column into:
+  - longitude
+  - latitude
+  
+- Convert these new columns into numeric data
+  
+- Use `st_as_sf()` to convert the tibble into an sf object
+
+- Use `{mapview}` to show the airport locations
+
+???
+
+
+

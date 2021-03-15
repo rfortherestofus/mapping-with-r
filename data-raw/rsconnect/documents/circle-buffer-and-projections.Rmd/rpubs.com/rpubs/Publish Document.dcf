@@ -1,0 +1,10 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/703155/96d512c2fdbc4de2b50d04305f18eee9
+bundleId: https://api.rpubs.com/api/v1/document/703155/96d512c2fdbc4de2b50d04305f18eee9
+url: http://rpubs.com/charliejhadley/703155
+when: 1607705221.39338
