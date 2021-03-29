@@ -1,0 +1,163 @@
+---
+title: "Raster data"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(sf)
+library(httr)
+library(stars)
+library(glue)
+library(stringi)
+library(magick)
+library(rnaturalearth)
+library(hrbrthemes)
+library(tidyverse)
+library("mapview")
+```
+
+# Examples
+
+I think this is a perfect example: https://rud.is/books/30-day-map-challenge/raster-01.html
+
+Here we get a single file: 
+
+```{r}
+## verbatim code
+download.file("ftp://ftp.cpc.ncep.noaa.gov/GIS/GRADS_GIS/GeoTIFF/TEMP/us_tmin/us.tmin_nohads_ll_20191130_float.tif", 
+              destfile = "example-geotiff.tiff")
+
+tmpstars <- read_stars("example-geotiff.tiff") 
+
+tmpstars %>%
+  mapview()
+```
+
+Obtain all the files:
+
+```{r}
+httr::GET(
+  url = "ftp://ftp.cpc.ncep.noaa.gov/GIS/GRADS_GIS/GeoTIFF/TEMP/us_tmin/"
+) -> res
+
+rawToChar(res$content) %>% 
+  stri_split_lines() %>% 
+  unlist() %>% 
+  keep(stri_detect_fixed, "ll_2019") %>% 
+  stri_replace_first_regex("^[^us]*", "") %>% 
+  walk(~{
+    download.file(
+      url = glue("ftp://ftp.cpc.ncep.noaa.gov/GIS/GRADS_GIS/GeoTIFF/TEMP/us_tmin/{.x}"),
+      destfile = here::here(glue("data-raw/raster_us-min-max-temperature/{.x}"))
+    )
+  })
+```
+
+Get base layer
+
+```{r}
+# lower 48 borders
+ne_states("united states of america", returnclass = "sf") %>%
+  filter(!(postal %in% c("AK", "HI"))) -> states 
+
+states_proj <- st_transform(states, "+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs")
+# lower 48 big poly
+whole <- st_union(states)
+```
+
+Read in rasters
+
+```{r}
+# some of the rasters have errors
+safe_stars <- possibly(read_stars, NULL, quiet = TRUE)
+
+# read them in, discarding problematic ones
+list.files(here::here("data-raw/raster_us-min-max-temperature"), full.names = TRUE) %>%
+  purrr::map(safe_stars) %>%
+  discard(is.null) -> temp_stars
+```
+
+Extract min/max values
+
+```{r}
+temp_stars
+  purrr::map(~range(.x[[1]])) %>%
+  purrr::flatten_dbl() %>%
+  range() -> min_max # get min/max values
+
+min_max
+## [1] -40.39574  32.76227
+```
+
+Make the animation
+
+```{r}
+frames <- image_graph(700, 600, res = 96)
+
+purrr::walk(temp_stars, ~{
+
+  temps <- .x
+  st_crop(temps, whole) %>% 
+    st_transform("+proj=laea +lat_0=45 +lon_0=-100 +x_0=0 +y_0=0 +a=6370997 +b=6370997 +units=m +no_defs") %>% 
+    st_as_sf() %>% 
+    select(val=1, geometry) -> temps
+
+  temp_date <- as.Date(stri_match_first_regex(names(.x), "([[:digit:]]{8})")[,2], format = "%Y%m%d")
+
+  ggplot() +
+    geom_sf(data = temps, aes(fill = val, color = val)) +
+    geom_sf(data = states_proj, fill = NA, color = "white", size = 0.125) +
+    scale_fill_viridis_c(
+      option = "magma", limits = c(-40, 35), breaks = c(-40, -20, 0, 20, 35)
+    ) +
+    scale_color_viridis_c(
+      option = "magma", limits = c(-40, 35), breaks = c(-40, -20, 0, 20, 35)
+    ) +
+    coord_sf(datum = NA) +
+    guides(
+      fill = guide_colourbar(title.position = "top"),
+      color = guide_colourbar(title.position = "top")
+    ) +
+    labs(
+      x = NULL, y = NULL,
+      color = "Min temp range for 2019 (°C)",
+      fill = "Min temp range for 2019 (°C)",
+      title = glue::glue("Minimum Temps for {temp_date}")
+    ) +
+    theme_ft_rc(grid="") +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    theme(axis.text = element_blank()) +
+    theme(legend.key.width = unit(2, "lines")) +
+    theme(legend.position = "bottom") -> gg
+
+  print(gg)
+
+})
+
+dev.off
+
+gif <- image_animate(frames, fps = 5)
+
+# save it out
+
+image_write(gif, here::here("data-raw/raster_us-temperatures`.gif"))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

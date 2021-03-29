@@ -1,0 +1,159 @@
+---
+title: "Compute values from {stars} objects with multiple bands"
+output:
+  xaringan::moon_reader:
+    css: ["style.css", "default"]
+    lib_dir: libs
+    df_print: paged
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r child = "setup.Rmd"}
+```
+
+```{r, include=FALSE, eval=TRUE}
+library("sf")
+library("stars")
+library("raster")
+library("rnaturalearthdata")
+library("mapview")
+library("patchwork")
+library("leaflet")
+library("leaflet.extras")
+library("readxl")
+library("janitor")
+library("emo")
+library("tigris")
+library("tidycensus")
+library("rmapshaper")
+library("patchwork")
+library("tidyverse")
+library("png")
+library("grid")
+library("here")
+library("rgeoboundaries")
+library("DT")
+```
+
+class: center, middle, dk-section-title
+background-image:url("https://images.pexels.com/photos/2881259/pexels-photo-2881259.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260")
+background-size:cover
+
+# Compute values from {stars} objects with multiple bands
+
+---
+
+### **N**ormalised Difference Vegetation Index (NDVI)
+
+.pull-left[
+```{r, echo=FALSE, eval=TRUE, out.width='400px'}
+landsat7_data <- read_stars(system.file("tif/L7_ETMs.tif", package = "stars"))
+
+ndvi <- landsat7_data %>% 
+  split("band") %>% 
+  mutate(ndvi = {X4 - X3} / {X4 + X3})
+
+ggplot() +
+  geom_stars(data = ndvi,
+             aes(fill = ndvi,
+                 x = x,
+                 y = y)) +
+  scale_fill_viridis_c(name = "NDVI", limits = c(-1 , 1)) +
+  theme_void() +
+  theme(legend.position = "bottom", 
+        text = element_text(size = 20)
+        ) +
+  guides(fill = guide_colorbar(direction = "horizontal", barwidth = 20, title.position = "left"))
+```
+]
+
+.pull-right[
+```{r, eval=TRUE, echo=FALSE}
+tibble::tribble(
+   ~NDVI.Range, ~Land.use.classification,
+   "0.5 - 1.0",       "Dense vegetation",
+   "0.3 - 0.5",    "Moderate vegetation",
+  "0.03 - 0.3",      "Sparse vegetation",
+    "0 - 0.03",              "Bare soil",
+          "-1.0 - 0",                  "Water"
+  ) %>% 
+  datatable(options = list(dom = "t",
+                           pageLength = 5),
+            colnames = c("NDVI Range",
+                         "Land use classification"),
+            rownames = FALSE)
+
+```
+
+]
+
+---
+
+# NDVI Calculation
+
+.pull-left[
+```{r, echo=FALSE, eval=TRUE, out.width='400px'}
+landsat7_data <- read_stars(system.file("tif/L7_ETMs.tif", package = "stars"))
+
+
+ndvi <- landsat7_data %>% 
+  split("band") %>% 
+  mutate(ndvi = {X4 - X3} / {X4 + X3})
+
+ggplot() +
+  geom_stars(data = ndvi,
+             aes(fill = ndvi,
+                 x = x,
+                 y = y)) +
+  scale_fill_viridis_c(name = "NDVI", limits = c(-1 , 1)) +
+  theme_void() +
+  theme(legend.position = "bottom", 
+        text = element_text(size = 20)
+        ) +
+  guides(fill = guide_colorbar(direction = "horizontal", barwidth = 20, title.position = "left"))
+```
+]
+
+.pull-right[
+$\LARGE NDVI = \frac{NIR \; - \; Red}{NIR \; + \; Red}$
+
+```{r, eval=TRUE, echo=FALSE}
+tibble::tribble(
+  ~band_number,     ~band_description,
+            1L,        "Visible blue",
+            2L,       "Visible green",
+            3L,         "Visible red",
+            4L,       "Near-infrared",
+            5L, "Short-wave infrared",
+            6L,             "Thermal"
+  ) %>% 
+  datatable(options = list(dom = "t",
+                           columnDefs = list(
+                                list(width = "50px",
+                                     targets = 0))),
+            colnames = c("Landsat7 Band",
+                         "Band description"),
+            rownames = FALSE)
+```
+
+]
+
+---
+
+### `{stars}` objects: <span style="color:#E76826">dimensions</span> vs <span style='color:#4B88CB'>attributes</span>
+
+We can only compute new values from <span style='color:#4B88CB'>attributes</span>.
+
+This means we need to **split** <span style="color:#E76826">dimensions</span> into <span style='color:#4B88CB'>attributes</span>.
+
+
+
+
+
+

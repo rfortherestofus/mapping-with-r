@@ -1,0 +1,229 @@
+---
+title: "CRS & Projections: How to choose a CRS"
+output:
+  xaringan::moon_reader:
+    css: ["style.css", "default"]
+    lib_dir: libs
+    df_print: paged
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r child = "setup.Rmd"}
+```
+
+```{r, include=FALSE, eval=TRUE}
+library("sf")
+library("raster")
+library("tidyverse")
+library("maps")
+library("rnaturalearthdata")
+library("mapview")
+library("patchwork")
+library("leaflet")
+library("leaflet.extras")
+library("readxl")
+library("janitor")
+library("stars")
+library("emo")
+library("tigris")
+library("tidycensus")
+library("rmapshaper")
+library("patchwork")
+```
+
+---
+
+class: center, middle, dk-section-title, contain
+background-image:url("images/impossible-shapes.png")
+background-size: 80%
+
+# CRS & Projections: How to choose a CRS
+
+???
+
+
+---
+class: middle, contain
+
+.pull-left[
+<br>
+This video gets into the technical details of finding a **suitable** projected CRS.
+
+This is only a concern for geocomputations and GIS analysis - for straightforward mapping you can use our magic CRS - 4326.
+]
+
+.pull-right[
+<img src='images/stop-shield-traffic-sign-road-sign-39080.jpeg'/>
+]
+
+???
+
+
+---
+
+## There are no all-purpose CRS
+
+> “There exist no all-purpose projections, all involve distortion when far from the center of the specified frame” (Bivand, Pebesma, and Gómez-Rubio 2013)
+
+???
+
+---
+
+## National Mapping Agencies to the rescue
+
+If your data lie within country borders then you can take advantage of CRS specifically designed by *National Mapping Agencies*.
+
+These agencies create nation-level CRS that allow precision...
+
+- ... national infrastructe planning.
+
+- ... cellular network coverage.
+
+- ... coastal erosion monitoring.
+
+- ... weather forecasting.
+
+- ... maps for civilian, government and military uses.
+
+
+???
+
+
+---
+
+### Governments usually supply data in national CRS
+
+GIS datasets obtained from government data portals are usually provided in the national CRS - for instance [geoportal.statistics.gov.uk](https://geoportal.statistics.gov.uk/datasets/local-authority-districts-may-2020-boundaries-uk-bfe).
+
+We can then use `st_crs()` and `st_transform()` to project other datasets into the national CRS.
+
+```{r}
+national_gis_dataset <- read_sf("data/shapefiles")
+your_own_data <- read_sf("data/points")
+
+your_own_data %>% 
+  st_transform(st_crs(national_gis_dataset))
+```
+
+
+???
+
+
+---
+
+## RSTUDIO CODING SLIDE
+
+???
+
+
+---
+
+### Hunting for national CRS
+
+There isn't a perfect process for finding national CRS and many countries just don't have one.
+
+The first place I recommend searching is [EPSG.io](https://epsg.io)
+
+???
+
+---
+
+## UTM CRS
+
+.pull-left[
+The **U**niversal **T**ransverse **M**ercator system splits the Earth into 60 zones 
+The zones are a nice balance between being large enough to be useful but small enough to reduce distortions.
+
+]
+
+
+.pull-right[
+<img src='images/utm-zones.png' width='80%'/>
+]
+
+???
+
+
+
+---
+
+## UTM CRS
+
+.pull-left[
+The UTM system does such a good job at splitting nations into usable zones that the grid includes only include two exceptions.
+
+Zones 31 through 37 are modified to accommodate Norway's southwest border and Svalbard.
+
+]
+
+
+.pull-right[
+<img src='images/utm-zones.png' width='80%'/>
+]
+
+???
+
+
+
+---
+
+## UTM CRS
+
+.pull-left[
+Unfortunately, UTM CRS are not suitable if your data straddles multiple UTM zones.
+]
+
+
+.pull-right[
+<img src='images/utm-zones.png' width='80%'/>
+]
+
+???
+
+
+---
+
+## Oceanographic CRS
+
+.pull-left[
+There are Oceanographic CRS for entire oceans and small regions. 
+
+Small region oceanographic CRS are usually designed for oil exploration/extraction.
+
+I recommend using [EPSG.io](https://epsg.io) to search for appropriage CRS for your data.]
+
+.pull-right[
+<img src='images/pexels-photo-1001682.jpeg'/>
+]
+
+???
+
+
+---
+
+# Takeaways
+
+.pull-left[
+- You might need to dig around for an appropriate CRS.
+
+- Use `st_crs()` to ensure `sf` datasets contain the exact same CRS.
+]
+
+.pull-right[
+```{r}
+uk_borders <- read_sf("data/uk")
+
+uk_cities %>% 
+  st_transform(st_crs(uk_borders))
+```
+]
+
+???
+
+
