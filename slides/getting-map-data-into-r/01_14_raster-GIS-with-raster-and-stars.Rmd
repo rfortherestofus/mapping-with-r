@@ -69,8 +69,14 @@ background-image:url("https://images.pexels.com/photos/347143/pexels-photo-34714
 # 
 # write_stars(stars_world_clim,
 #                    here("slides", "getting-map-data-into-r", "data", "stars_world_clim.tiff"))
+# zip(zipfile = here("slides", "getting-map-data-into-r", "data", "stars_world_clim.zip"), files = here("slides", "getting-map-data-into-r", "data", "stars_world_clim.tiff"))
+
+unzip(zipfile = here("slides", "getting-map-data-into-r", "data", "stars_world_clim.zip"),
+      exdir = here("slides", "getting-map-data-into-r", "data"))
 
 stars_world_clim <- read_stars(here("slides", "getting-map-data-into-r", "data", "stars_world_clim.tiff"))
+
+unlink(here("slides", "getting-map-data-into-r", "data", "stars_world_clim.tiff"))
 
 stars_world_clim_max_temp <- stars_world_clim %>% 
   filter(band == "bio5")
