@@ -1,0 +1,25 @@
+---
+title: "Turning data.frame into {sf} Objects"
+output:
+  xaringan::moon_reader:
+    df_print: paged
+---
+
+## City coordinates
+
+If you're looking for city coordinates you're in luck:
+
+```{r, eval=TRUE, echo=TRUE}
+maps::world.cities
+```
+
+---
+
+## What's wrong?
+
+The `st_as_sf()` function is used to convert all "foreign" objects into `{sf}` objects, including:
+
+- `{sp}` objects
+- data.frames (and tibbles)
+- lower level geometry objects
+

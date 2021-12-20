@@ -108,13 +108,19 @@ countries_sf %>%
 
 ???
 
+---
+
+## Shapefile formats
+
+There are *many* different formats for storing shapefiles.
+
+The **most common and most awkward** format you'll come across are ESRI shapefiles.
+
 
 
 ---
 
 ## ESRI Shapefiles
-
-ESRI shapefiles are the common format for shapefiles.
 
 ESRI shapefiles are downloaded as .zip files that you must uncompress.
 
@@ -126,6 +132,8 @@ ESRI shapefiles must contain at least these files:
 - .shx
 - .dbf
 
+The .zip might contain *multiple layers*.
+
 ]
 
 
@@ -136,47 +144,31 @@ ESRI shapefiles must contain at least these files:
 
 ???
 
-
 ---
 
-## Worked Example
+## Data sources for this video
 
-Please open the "brexit-maps" project in the worked-exercises folder.
+We're going to demonstrate two sets of shapefiles in the 01_06 RStudio project.
 
-```{yaml}
-mapping-with-r
-└── worked-exercises
-  └── brexit-maps
-      ├── abrexit-maps.Rproj
-      └── data
-```
+.pull-left[
 
-???
+**Counties in England and Wales**
 
-Let's load up the brexit-maps.Rproj and start looking at importing shapefiles.
+This was downloaded from [here](https://data.gov.uk/dataset/0f93351a-514a-4ccd-80ea-d727427c63b0/counties-and-unitary-authorities-december-2015-generalised-clipped-boundaries-in-england-and-wales) and contains a **single layer**.
+
+]
+
+.pull-left[
+
+**US 2020 Census Self-Response**
+
+This was downloaded from [here](https://www.gc.cuny.edu/Page-Elements/Academics-Research-Centers-Initiatives/Centers-and-Institutes/Center-for-Urban-Research/CUR-research-initiatives/Census-2020/Census-2020-Self-Response-Data-Questions-and-Answers) and contains **multiple layers**.
+
+]
 
 ---
 
 ## (RStudio Code Slide)
-
-???
-
-
----
-
-## GeoJSON Shapefiles
-
-GeoJSON is a more modern and streamlined format... but fairly rare.
-
-The Republic of Ireland's Open Data platform has many GeoJSON data sources, including administrative boundaries: http://data-osi.opendata.arcgis.com/datasets/e0cfbed6a3cc432295fd3e2f57451cad_0.geojson
-
-
-???
-
-
----
-
-## (RStudio Coding Slide)
 
 ???
 

@@ -53,11 +53,15 @@ There are 3 reasons that country names might vary between datasets:
 - Abbreviations
 
   - UK/United Kingdom, US/USA/United States, N. Cyprus/Northern Cyprus
-  
+
+--
+
 - Alternative (not disputed) names, i.e. formal vs informal
 
   - Netherlands/Holland, Kingdom of Bahrain/Bahrain, People's Republic of China/China
-  
+
+--
+
 - Disputed territories
 
 ???
@@ -88,23 +92,6 @@ countrycode::codelist %>%
               backgroundColor = 'yellow')
 ```
 
-???
-
-
----
-
-## Worked Example
-
-Please create a new project called "gapminder-choropleth"
-
-<br>
-<center>
-<img src='images/rstudio-project-icon.png' width="300px"/>
-</center>
-
-???
-
-
 
 ---
 
@@ -118,35 +105,8 @@ I'm going to use `{countrycode}` to disambiguate country names in a toy dataset 
 
 ---
 
-## (RStudio Coding Slide)
-
-???
-
----
-
-## Gapminder
-
-.pull-left[
-The Gapminder Foundation is a non-profit that promotes sustainable development.
-
-It was founded by Hans Rosling in 2005.
-
-It's most famous chart pulls together **population**, **life expectancy** and **GDP per capita** to compare global economies over the 20th century. Learn more from [Hans Rosling's TED Talk](https://www.ted.com/talks/hans_rosling_global_population_growth_box_by_box?language=en#t-432699).
-]
-
-.pull-right[
-<img src='images/gapminder.gif' width="450px"/>
-]
-
-???
-
----
 
 ## (RStudio Coding Slide)
-
-???
-
-
   
 ---
 

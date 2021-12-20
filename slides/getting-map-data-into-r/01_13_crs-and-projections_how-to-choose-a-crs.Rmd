@@ -37,8 +37,6 @@ library("rmapshaper")
 library("patchwork")
 ```
 
----
-
 class: center, middle, dk-section-title, contain
 background-image:url("images/impossible-shapes.png")
 background-size: 80%
@@ -134,58 +132,9 @@ The first place I recommend searching is [EPSG.io](https://epsg.io)
 
 ---
 
-## UTM CRS
+class: inverse, center, middle
 
-.pull-left[
-The **U**niversal **T**ransverse **M**ercator system splits the Earth into 60 zones 
-The zones are a nice balance between being large enough to be useful but small enough to reduce distortions.
-
-]
-
-
-.pull-right[
-<img src='images/utm-zones.png' width='80%'/>
-]
-
-???
-
-
-
----
-
-## UTM CRS
-
-.pull-left[
-The UTM system does such a good job at splitting nations into usable zones that the grid includes only include two exceptions.
-
-Zones 31 through 37 are modified to accommodate Norway's southwest border and Svalbard.
-
-]
-
-
-.pull-right[
-<img src='images/utm-zones.png' width='80%'/>
-]
-
-???
-
-
-
----
-
-## UTM CRS
-
-.pull-left[
-Unfortunately, UTM CRS are not suitable if your data straddles multiple UTM zones.
-]
-
-
-.pull-right[
-<img src='images/utm-zones.png' width='80%'/>
-]
-
-???
-
+## When National CRS won't cut it
 
 ---
 
@@ -204,26 +153,25 @@ I recommend using [EPSG.io](https://epsg.io) to search for appropriage CRS for y
 
 ???
 
+---
+
+## Projection Wizard
+
+[projectionwizard.org](https://projectionwizard.org/) is a free interactive tool for creating custom CRS.
+
+<center><img src='images/projection-wizard.png' height='300px'/></center>
+
+... but to use it you need to decide what type of projected CRS you need.
 
 ---
 
-# Takeaways
+## Projected CRS Types
 
-.pull-left[
-- You might need to dig around for an appropriate CRS.
+<center><img src='images/projected-crs-types.png' height='400px'/></center>
 
-- Use `st_crs()` to ensure `sf` datasets contain the exact same CRS.
-]
+Source: [ihatecoordinatesystems.com/](https://ihatecoordinatesystems.com/)
 
-.pull-right[
-```{r}
-uk_borders <- read_sf("data/uk")
+---
 
-uk_cities %>% 
-  st_transform(st_crs(uk_borders))
-```
-]
-
-???
-
+## RStudio Coding Slide
 

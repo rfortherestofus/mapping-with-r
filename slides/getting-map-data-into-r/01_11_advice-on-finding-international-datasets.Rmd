@@ -19,20 +19,12 @@ editor_options:
 
 ```{r, include=FALSE, eval=TRUE}
 library("sf")
-library("raster")
 library("tidyverse")
-library("rnaturalearthdata")
 library("mapview")
 library("patchwork")
-library("leaflet")
-library("leaflet.extras")
-library("readxl")
 library("janitor")
-library("stars")
-library("emo")
 library("tigris")
 library("tidycensus")
-library("rmapshaper")
 library("here")
 library("patchwork")
 ```
@@ -159,7 +151,7 @@ gg_uk_110 + gg_uk_50
 
 1:10m country shapefiles are too large to fit in a CRAN package.
 
-```{r}
+```{r, eval=FALSE}
 remotes::install_github("ropensci/rnaturalearthhires")
 ```
 
@@ -331,7 +323,7 @@ These might include:
 .pull-left[
 Load the `{raster}` package **before** loading the `{tidyverse}`
 
-```{r}
+```{r, eval=FALSE}
 library("raster")
 library("tidyverse")
 ```

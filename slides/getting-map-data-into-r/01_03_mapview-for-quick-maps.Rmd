@@ -54,10 +54,11 @@ With {mapview} we can check if our data makes sense.
 .pull-left[
 - Designed to be fast
 
-- Works with all geospatial data packages
+- Works with most common geospatial data formats
 
   - `{sp}`
   - `{sf}`
+  - `{raster}`
   - `{stars}`
   
 - Can be further customised, see package website for more details: <br>[r-spatial.github.io/mapview](http://r-spatial.github.io/mapview)

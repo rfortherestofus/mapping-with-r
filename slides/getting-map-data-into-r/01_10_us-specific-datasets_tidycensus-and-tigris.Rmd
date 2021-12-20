@@ -20,7 +20,6 @@ editor_options:
 ```{r, include=FALSE, eval=TRUE}
 library("sf")
 library("tidyverse")
-library("rnaturalearthdata")
 library("mapview")
 library("patchwork")
 library("leaflet")
@@ -251,21 +250,33 @@ class: my-turn
 
 .pull-left[
 
-I'm going to compare the fraction of rented properties across congressional districts by combining `{tidycensus}` and `{tigris}`.
+I'm going to create a choropleth visualising the % of households that are rented in each state.
 
 ]
 
 .pull-right[
 
-```{r, eval=TRUE, echo=FALSE, out.height="400px"}
-us_cd_20m <- read_sf("data/us-congressional-districts")
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, out.height="400px"}
 
-tenure_cd_census_2010 <- read_csv("data/tenure_cd_census_2010.csv")
+states_sf <- states(year = 2010, cb = TRUE)
 
-us_cd_20m %>%
-  left_join(tenure_cd_census_2010) %>%
-  filter(!STATEFP %in% c("02", "72", "15")) %>%
-  mapview(zcol = "rented_fraction")
+housing_ownership <- get_decennial(geography = "state",
+              variables = c("H001001", "H004004", "H004002"),
+              year = 2010)
+
+housing_ownership <- housing_ownership %>% 
+  pivot_wider(values_from = value,
+              names_from = variable)
+
+housing_ownership <- housing_ownership %>% 
+  mutate(H004004 = 100 * H004004 / H001001) %>% 
+  rename(rental_perc = H004004)
+
+states_sf %>% 
+  select(STATE) %>% 
+  left_join(housing_ownership,
+            by = c("STATE" = "GEOID")) %>% 
+  mapview(zcol = "rental_perc")
 ```
 
 ]
@@ -283,30 +294,14 @@ class: inverse
 
 ### Your Turn
 
-.pull-left[
-1. Use `load_variables()` to find the **Renter Occupied variables for each age bracket** in the 2010 Decennial Census.
+Produce the same choropleth as I did but obtain data from the 2015 American Community Survey (ACS) dataset.
 
-1. Use `get_decennial()` to extract all of the 9 variables from above
+1. Use `load_variables()` to find the variables in the 2015 American Community Survey.
 
-1. Use `pivot_wider()` to prepare the data for joining with the congressional district shapefiles.
+1. Use `get_acs()` to extract these two variables.
+
+1. Use `pivot_wider()` to prepare the data for joining with the US states shapefiles from `{tigris}`.
 
 1. Join the Census and shapefiles datasets with `left_join()` and visualise with `mapview()`
-]
-
-.pull-right[
-
-```{r, eval=TRUE, echo=FALSE, out.height="400px"}
-age_cd_census_2010 <- read_csv("data/age_cd_census_2010.csv")
-
-us_cd_20m %>%
-  left_join(age_cd_census_2010) %>%
-  filter(!STATEFP %in% c("02", "72", "15")) %>%
-  mapview(zcol = "age_85_plus")
-```
-
-]
-
-???
-
 
 

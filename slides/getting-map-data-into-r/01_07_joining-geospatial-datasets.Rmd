@@ -188,23 +188,6 @@ I'll then show you how to bind multiple `{sf}` objects together.
 
 ---
 
-## Worked Example
-
-Please open the "uk-choropleth" project in the worked-exercises folder.
-
-```{yaml}
-mapping-with-r
-└── worked-exercises
-  └── brexit-maps
-      ├── abrexit-maps.Rproj
-      └── data
-```
-
-???
-
-
----
-
 ## (RStudio Coding Slide)
 
 ???
@@ -216,27 +199,13 @@ class: inverse
 
 ## Your Turn
 
-Use mapview() to demonstrate how each constituency voted in the Brexit referendum.
-
-- Import the data from `data/brexit-referendum-results.csv`
-
-- Use `mutate()` to add a column that contains “Remain” or “Leave” depending on which received more votes
-
-- Bind together the shapefiles for England, Scotland and Wales
-
-- Join these two dataset together and visualise with `mapview()`
+Use `mapview()` to visualise the results of the Brexit Referendum by combining shapefiles with the a .csv file containing the results.
 
 
+- Combine together the shapefiles for England, Scotland and Wales with `bind_rows()`
 
+- Import the referendum results .csv file
 
+- Use `left_join()` to join the UK shapefiles with the referendum results
 
-
-
-
-
-
-
-
-
-
-
+- Use `mapview(zcol = "results")` to visualise the shapefiles after joining

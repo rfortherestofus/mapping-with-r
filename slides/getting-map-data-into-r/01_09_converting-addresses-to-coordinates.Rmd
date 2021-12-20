@@ -177,27 +177,6 @@ tidygeocoder_tibble %>%
 
 ???
 
-
-
----
-
-## Worked Example
-
-Please open the "addresses-to-coordinates" project in the worked-exercises folder.
-
-```{yaml}
-mapping-with-r
-└── worked-exercises
-  └── addresses-to-coordinates
-      ├── addresses-to-coordinates.Rproj
-      └── data
-```
-
-???
-
-
-
-
 ---
 
 class: my-turn

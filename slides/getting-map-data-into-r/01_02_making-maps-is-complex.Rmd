@@ -234,7 +234,7 @@ Base maps (or map tiles) live behind the data we add to our maps and add flavour
 <center>
 ```{r, eval=TRUE, echo=FALSE,out.height="200px", out.width="300px"}
 leaflet() %>%
-  addProviderTiles(providers$HERE.satelliteDay)
+  addProviderTiles(providers$Esri.WorldImagery)
 ```
 </center>
 ]
@@ -264,7 +264,7 @@ countries_sf %>%
 <center>
 ```{r, eval=TRUE, echo=FALSE,out.height="200px", out.width="300px"}
 leaflet() %>%
-  addProviderTiles(providers$HERE.satelliteDay)
+  addProviderTiles(providers$Esri.WorldImagery)
 ```
 
 ```{r, eval=TRUE, echo=FALSE,out.height="200px", out.width="300px"}
@@ -322,8 +322,14 @@ countries_sf %>%
 
 .pull-right[
 <center>
+
+```{r, include=FALSE}
+sf_use_s2(FALSE)
+```
+
+
 ```{r, eval=TRUE, echo=FALSE, out.width="350px"}
-usa_sf() %>%
+usa_sf("laea") %>%
   st_union() %>%
   ggplot() +
   geom_sf() +
@@ -476,10 +482,10 @@ R is without doubt a complete and powerful GIS system. We can use it to map or m
 ]
 
 ```{r eval=FALSE, include=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+rgl::rglwidget()
 montereybay %>%
   sphere_shade(texture="desert") %>%
   plot_3d(montereybay,zscale=50)
-render_snapshot("images/rayshader-montereybay.png")
 ```
 .pull-right[
 <br>

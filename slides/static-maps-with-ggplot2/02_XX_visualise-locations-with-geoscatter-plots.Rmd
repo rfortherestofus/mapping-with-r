@@ -1,0 +1,233 @@
+---
+title: "Visualise locations with geoscatter plots"
+output:
+  xaringan::moon_reader:
+    css: ["style.css", "default"]
+    lib_dir: libs
+    df_print: paged
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r child = "setup.Rmd"}
+```
+
+```{r, include=FALSE, eval=TRUE}
+library("tidyverse")
+library("sf")
+library("rnaturalearthdata")
+library("maps")
+library("here")
+library("ggspatial")
+library("janitor")
+library("readxl")
+library("tidygeocoder")
+library("ggspatial")
+library("leaflet")
+options(htmltools.preserve.raw = FALSE)
+
+# uk_addresses <- read_excel(here("slides", "static-maps-with-ggplot2", "data", "street-addresses.xlsx"),
+#                            sheet = "UK Addresses") %>% 
+#   clean_names()
+# 
+# uk_addresses <- uk_addresses %>% 
+#   mutate(across(business_name:country, ~str_replace_na(., ""))) %>% 
+#   mutate(full_street_address = paste(business_name, street, sep = ", "))
+# 
+# uk_addresses <- uk_addresses %>% 
+#   geocode(street = full_street_address,
+#           city = city,
+#           postalcode = post_code,
+#           country = country,
+#           method = "iq")
+# 
+# uk_addresses_sf <- uk_addresses %>% 
+#   st_as_sf(coords = c("long", "lat"), crs = 4326)
+# 
+# uk_addresses_sf %>% 
+#   saveRDS(here("slides", "static-maps-with-ggplot2", "data", "street-addresses.rds"))
+uk_addresses_sf <- readRDS(here("slides", "static-maps-with-ggplot2", "data", "street-addresses.rds"))
+
+uk_sf <- countries50 %>% 
+  st_as_sf() %>% 
+  filter(name == "United Kingdom")
+```
+
+
+
+class: center, middle, dk-section-title
+background-image:url("images/pexels-photo-346696.jpeg")
+background-size: cover
+
+# Visualise locations with geoscatter plots
+
+---
+
+## Geoscatter plots
+
+.pull-left[
+In geoscatter plots locations are identified by points.
+
+This means for each point you need:
+
+- longitude
+
+- latitude
+]
+
+.pull-right[
+```{r, eval=TRUE, echo=FALSE, out.width='450px', dpi=300}
+ggplot() +
+  # geom_sf(data = uk_sf) +
+  geom_sf(data = uk_addresses_sf,
+          aes(colour = city),
+          size = 3) +
+  theme_gray(base_size = 20)
+```
+
+]
+
+---
+
+## Adding context to scatterplots
+
+We can either use shapefiles or map tiles. 
+
+.pull-left[
+```{r, eval=TRUE, echo=FALSE, out.width='400px', dpi=300}
+gg_shapefiles <- ggplot() +
+  geom_sf(data = uk_sf) +
+  geom_sf(data = uk_addresses_sf,
+          aes(colour = city),
+          size = 1.5) +
+  guides(colour = guide_legend(override.aes = list(size = 3))) +
+  theme_void(base_size = 20)
+gg_shapefiles
+```
+]
+
+.pull-right[
+```{r, eval=TRUE, echo=FALSE, out.width='400px', dpi=300}
+gg_map_tiles <- ggplot() +
+  annotation_map_tile(zoom = 6,
+                      type = "hotstyle") +
+  geom_sf(data = uk_sf,
+          alpha = 0,
+          size = 0) +
+  geom_sf(data = uk_addresses_sf,
+          aes(colour = city),
+          size = 3) +
+  guides(colour = guide_legend(override.aes = list(size = 3))) +
+  theme_void(base_size = 20) +
+  labs(subtitle = "© OpenStreetMap contributors") +
+  theme(plot.subtitle = element_text(size = 12))
+gg_map_tiles
+```
+]
+
+---
+
+## It's easier with interactive maps...
+
+.pull-left[
+Map tiles are designed to be loaded on-demand as users move and zoom into maps.
+]
+
+.pull-right[
+```{r, eval=TRUE, echo=FALSE}
+pal_city <- colorFactor("Set2", unique(uk_addresses_sf$city))
+
+leaflet() %>% 
+  addTiles() %>% 
+  addPolygons(data = uk_sf,
+              color = "black",
+              fillOpacity = 0,
+              weight = 1) %>% 
+  addCircleMarkers(data = uk_addresses_sf,
+                   fillColor = ~pal_city(city),
+                   fillOpacity = 1,
+                   stroke = FALSE,
+                   label = ~location_name) %>% 
+  addLegend(pal = pal_city,
+            values = ~city,
+            data = uk_addresses_sf,
+            opacity = 1)
+```
+]
+
+---
+
+class: my-turn
+
+## My Turn
+
+.pull-left[
+1. Geocode the data in the `addresses-to-coordinates` project
+
+1. Use `countries50` from `{rnaturalearthdata}` to make a geoscatter plot with shapefiles.
+]
+
+.pull-right[
+```{r, eval=TRUE, echo=FALSE, out.width='400px', dpi=300}
+gg_shapefiles <- ggplot() +
+  geom_sf(data = uk_sf) +
+  geom_sf(data = uk_addresses_sf,
+          aes(colour = city),
+          size = 1.5) +
+  guides(colour = guide_legend(override.aes = list(size = 3))) +
+  theme_void(base_size = 20)
+gg_shapefiles
+```
+]
+
+---
+
+class: my-turn
+
+## My Turn
+
+.pull-left[
+1. Geocode the data in the `addresses-to-coordinates` project
+
+1. Use `countries50` from `{rnaturalearthdata}` to make this map
+
+1. Use `annotation_map_tile()` from `{ggspatial}` to make a geoscatter plot with map tiles
+]
+
+.pull-right[
+```{r, eval=TRUE, echo=FALSE, out.width='400px', dpi=300}
+gg_map_tiles <- ggplot() +
+  annotation_map_tile(zoom = 6,
+                      type = "hotstyle") +
+  geom_sf(data = uk_sf,
+          alpha = 0,
+          size = 0) +
+  geom_sf(data = uk_addresses_sf,
+          aes(colour = city),
+          size = 3) +
+  guides(colour = guide_legend(override.aes = list(size = 3))) +
+  theme_void(base_size = 20)
+gg_map_tiles
+```
+]
+
+---
+
+class: inverse
+
+## Your turn
+
+- Filter out the top 5 largest cities in a country of interest from `maps::world.cities`
+
+- Convert the city locations into an `sf` object
+
+- Visualise these locations as a scatter plot with: 
+
+    - Appropriate (multiple?) shapefiles from `countries50`
+    
+    - Map tiles from `annotation_map_tile()`

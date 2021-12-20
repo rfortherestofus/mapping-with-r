@@ -65,7 +65,7 @@ To squash the surface of the Earth onto a map we need to **project** from a sphe
 
 ---
 
-## Geographic CRS<sup>1</sup> vs Projected CRS
+## Geographic CRS vs Projected CRS
 
 .pull-left[
 
@@ -77,6 +77,8 @@ To squash the surface of the Earth onto a map we need to **project** from a sphe
 
 ]
 
+--
+
 .pull-right[
 
 **Projected CRS**
@@ -86,18 +88,12 @@ To squash the surface of the Earth onto a map we need to **project** from a sphe
 - Distances are measured in **physical units**, e.g. metres. 
 
 ]
-<br>
-
-.footnote[
-[1] **C**ordinate **R**eference **S**ystems
-]
 
 ???
 
-
 ---
 
-## Geographic CRS<sup>1</sup> vs Projected CRS
+## Geographic CRS vs Projected CRS
 
 .pull-left[
 
@@ -162,15 +158,6 @@ quakes_4326_crs %>% mapview()
 
 ---
 
-## CRS vs proj4string
-
-> Not all coordinate reference systems have a **CRS** code... but all coordinate reference systems do have a **proj4string**.
-
-???
-
-
----
-
 ### CRS codes are EPSG codes
 
 CRS 4326 is the **E**uropean **P**etroleum **S**urvey **G**roup (EPSG) code 4326.
@@ -185,18 +172,68 @@ CRS 4326 is the **E**uropean **P**etroleum **S**urvey **G**roup (EPSG) code 4326
 
 ???
 
-
 ---
 
-### PROJ and proj4strings
+## CRS vs WKT
 
-PROJ is **the** software for transforming coordinates between different CRS - it's integrated into all GIS software, including `{sf}`.
+Only a small subset of possible Coorodinate Reference Systems *have* "CRS codes".
 
-In R code we specify CRS to PROJ as a `proj4string`.
+The most general purpose and flexible way to refer to (and store) projections is in the **Well-Known Text (WKT)** representation.
 
 ???
 
 
+---
+
+### WKT include all the complexity of GIS systems (I)
+
+.pull-left[
+
+We're smoothing over a lot of complicated mathematics required to build CRS. 
+
+The benefit of using WKT is that they can fully describe all of the details required for more complex GIS you or your colleagues might do in the future.
+
+]
+
+.pull-right[
+
+<img src='images/local-datums.gif' width='100%'/>
+
+Image credit: [desktop.arcgis.com/en/arcmap/10.3/guide-books/map-projections/datums](desktop.arcgis.com/en/arcmap/10.3/guide-books/map-projections/datums).
+
+]
+
+---
+
+### WKT include all the complexity of GIS systems (II)
+
+.pull-left[
+
+WKT can be recognised by the following features:
+
+- Most WKT examples you'll use begin with `GEODCRS` or `PROJCS`.
+
+- It contains nested square brackets
+
+]
+
+.pull-right[
+
+```{r}
+GEOGCS["WGS 84",
+    DATUM["WGS_1984",
+        SPHEROID["WGS 84",6378137,298.257223563,
+            AUTHORITY["EPSG","7030"]],
+        AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich",0,
+        AUTHORITY["EPSG","8901"]],
+    UNIT["degree",0.0174532925199433,
+        AUTHORITY["EPSG","9122"]],
+    AUTHORITY["EPSG","4326"]]
+```
+
+
+]
 
 ---
 
@@ -211,6 +248,7 @@ In R code we specify CRS to PROJ as a `proj4string`.
 
 .center[
 ```{r, eval=TRUE, echo=FALSE, fig.asp = 0.6, out.height='400px', dpi=150}
+sf_use_s2(FALSE)
 world_cities <- world.cities %>% 
   as_tibble() %>% 
   st_as_sf(coords = c("long", "lat"),
