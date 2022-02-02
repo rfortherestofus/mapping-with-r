@@ -2,6 +2,7 @@
 title: "US data: {tidycensus} and {tigris} packages"
 output:
   xaringan::moon_reader:
+    self_contained: true
     css: ["style.css", "default"]
     lib_dir: libs
     df_print: paged
