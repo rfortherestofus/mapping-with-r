@@ -2,6 +2,7 @@
 title: "Compare locations/events with geobubble charts"
 output:
   xaringan::moon_reader:
+    self_contained: true
     css: ["style.css", "default"]
     lib_dir: libs
     df_print: paged
