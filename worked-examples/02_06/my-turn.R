@@ -36,7 +36,7 @@ us_most_popular_streaming_sf %>%
 # ==== Ordering services in the legend ====
 
 order_most_popular_service <- most_popular_streaming_service %>% 
-  count(streaming_service, count = TRUE) %>% 
+  count(streaming_service, sort = TRUE) %>% 
   pull(streaming_service)
 
 
