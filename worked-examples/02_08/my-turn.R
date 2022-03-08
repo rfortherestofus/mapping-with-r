@@ -12,3 +12,19 @@ london_education_sf <- london_sf %>%
   mutate(value = value / sum(value)) 
 
 # ==== data viz ====
+
+
+order_age_groups <- c("Still in education",
+                      "16 or under",
+                      "17-19",
+                      "20-23",
+                      "24+")
+
+london_education_sf %>% 
+  mutate(age_group = fct_relevel(age_group, order_age_groups)) %>% 
+  ggplot() +
+  geom_sf(aes(fill = value)) +
+  scale_fill_viridis_c() +
+  facet_wrap(~age_group) +
+  theme_void() +
+  theme(strip.background = element_rect(fill = "pink"))
