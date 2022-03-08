@@ -13,7 +13,18 @@ london_school_leavers_sf <- london_sf %>%
 
 london_school_leavers_sf %>% 
   ggplot() +
-  geom_sf(aes(fill = value))
+  geom_sf(aes(fill = value,
+              shape = "City of London")) +
+  scale_fill_viridis_c(na.value = "pink",
+                       name = "Population",
+                       labels = scales::number_format(big.mark = ",")) +
+  guides(shape = guide_legend(override.aes = list(
+    fill = "pink",
+    title = NULL,
+    order = 2,
+    color = "transparent"
+  )),
+  fill = guide_colorbar(order = 1))
 
 
 
