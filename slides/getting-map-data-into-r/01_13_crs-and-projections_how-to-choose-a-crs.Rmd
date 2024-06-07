@@ -20,7 +20,6 @@ editor_options:
 
 ```{r, include=FALSE, eval=TRUE}
 library("sf")
-library("raster")
 library("tidyverse")
 library("maps")
 library("rnaturalearthdata")
