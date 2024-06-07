@@ -3,7 +3,7 @@ library(mapview)
 library(tidyverse)
 library(tigris)
 
-us_states <- states(resolution = "20m")
+us_states <- states(cb = TRUE, resolution = "20m")
 
 us_states$geometry
 
