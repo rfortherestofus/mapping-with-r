@@ -26,15 +26,14 @@ library("mapview")
 library("patchwork")
 library("leaflet")
 library("leaflet.extras")
-# remotes::install_github("hrbrmstr/albersusa")
 # remotes::install_github("elliottmorris/politicaldata")
 library("politicaldata")
-library("albersusa")
 library("rayshader")
 library("threejs")
 library("ggtext")
 library("janitor")
 library("here")
+library("tigris")
 countries_sf <- countries110 %>%
   st_as_sf()
 
@@ -99,7 +98,8 @@ R has packages for every part of the mapping workflow:
 gg_web_mercator <- countries_sf %>%
   ggplot() +
   geom_sf(fill = "#D2B48C") +
-  coord_sf(crs = 3857, expand = FALSE) +
+  coord_sf(crs = 3857, expand = FALSE,
+           ylim = c(-18440003, 18440003)) +
   theme_cjh_map()
 
 gg_robinson <- countries_sf %>%
@@ -313,7 +313,7 @@ Sometimes the maps we want to build require us to manipulate the relative positi
 <center>
 ```{r, eval=TRUE, echo=FALSE, out.width="350px"}
 countries_sf %>%
-  filter(name == "United States") %>%
+  filter(name == "United States of America") %>%
   ggplot() +
   geom_sf() +
   theme_cjh_map()
@@ -329,9 +329,12 @@ sf_use_s2(FALSE)
 ```
 
 
-```{r, eval=TRUE, echo=FALSE, out.width="350px"}
-usa_sf("laea") %>%
-  st_union() %>%
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, out.width="350px"}
+us_states <- tigris::states(cb = TRUE, resolution = "20m", progress_bar = FALSE)
+
+us_states %>% 
+  shift_geometry() %>% 
+  st_union() %>% 
   ggplot() +
   geom_sf() +
   theme_cjh_map()
@@ -363,12 +366,14 @@ background-size: contain
 data(pres_results)
 pres_2016 <- pres_results %>%
   filter(year == 2016) %>%
-  mutate(winner = if_else(dem > rep, "Democrat", "Republican"))
+  mutate(winner = if_else(dem > rep, "Democrat", "Republican")) %>% 
+  as_tibble()
 
-usa_sf <- usa_sf()
-pres_2016_sf <- usa_sf %>%
+pres_2016_sf <- us_states %>% 
+  shift_geometry() %>% 
   left_join(pres_2016,
-            by = c("iso_3166_2" = "state"))
+            by = c("STUSPS" = "state")) %>% 
+  filter(NAME != "Puerto Rico")
 
 ggplot() +
   geom_sf(data = pres_2016_sf,
@@ -392,7 +397,6 @@ referendum_votes <- clean_names(referendum_votes)
 
 referendum_votes <- referendum_votes %>%
   select(area_code, area, electorate, votes_cast, valid_votes, pct_remain, pct_leave)
-
 
 referendum_votes <- referendum_votes %>%
   mutate(result = case_when(pct_remain > pct_leave ~ "Remain",
