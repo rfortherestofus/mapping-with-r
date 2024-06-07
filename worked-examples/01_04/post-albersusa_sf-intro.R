@@ -25,7 +25,7 @@ starwars %>%
   count(homeworld)
 
 us_states %>% 
-  filter(REGION < 5) %>% 
+  mutate(`state is >=10% water` = {AWATER / ALAND} >= 0.1) %>% 
   shift_geometry() %>% 
-  count(REGION) %>% 
-  mapview(zcol = "REGION")
+  count(`state is >=10% water`) %>% 
+  mapview(zcol = "state is >=10% water")
