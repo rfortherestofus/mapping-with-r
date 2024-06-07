@@ -7,7 +7,14 @@ library(mapview)
 
 alaska_landcover <- raster("data/alaska_landcover.img")
 
+library(terra)
+
+alaska_terra <- rast("data/alaska_landcover.img")
+
 alaska_landcover %>% 
+  mapview()
+
+alaska_terra %>% 
   mapview()
 
 countries110 %>% 
@@ -21,3 +28,16 @@ mapview(c(countries110, tiny_countries110))
 
 usa_sf() %>% 
   mapview()
+
+
+library(leaflet)
+
+leaflet() %>% 
+  addRasterImage(alaska_landcover)
+
+library(ggspatial)
+
+library(tidyterra)
+
+ggplot() +
+  geom_spatraster(data = alaska_terra)

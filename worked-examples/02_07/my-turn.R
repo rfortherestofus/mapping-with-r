@@ -28,9 +28,11 @@ london_school_leavers_sf %>%
 
 
 
+library(leaflet)
 
-
-
+london_school_leavers_sf %>% 
+  leaflet() %>% 
+  addPolygons()
 
 
 
