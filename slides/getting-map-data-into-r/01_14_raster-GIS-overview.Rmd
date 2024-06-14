@@ -164,11 +164,7 @@ GIS raster datasets can contain multiple layers.
 
 .pull-left[
 
-<img src='images/single-layer-raster.png' width='200px' ALIGN="right"/> For **single** layer raster datasets use these packages: 
-
-- `{raster}`
-
-- `{terra}`
+<img src='images/single-layer-raster.png' width='200px' ALIGN="right"/> For **single** layer raster datasets use the `{terra}` pa
 
 ]
 
